@@ -80,8 +80,9 @@ namespace AvionicsSystems
         /// <summary>
         /// Unregister the variable callback.
         /// </summary>
-        public void OnDestroy()
+        public new void OnDestroy()
         {
+            base.OnDestroy();
             try
             {
                 // I've seen this get destroyed when the game was exiting, so
