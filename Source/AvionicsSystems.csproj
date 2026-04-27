@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props" Condition="Exists('packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props')" />
+  <Import Project="packages\JsonPoke.1.2.0\build\JsonPoke.props" Condition="Exists('packages\JsonPoke.1.2.0\build\JsonPoke.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4F66C4FC-D095-4D30-A0FE-01EDD2BAF6A8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AvionicsSystems</RootNamespace>
+    <AssemblyName>AvionicsSystems</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <BinariesOutputRelativePath>GameData\MOARdV\AvionicsSystems</BinariesOutputRelativePath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MoonSharp.Interpreter">
+      <HintPath>GameData\MOARdV\AvionicsSystems\MoonSharp.Interpreter.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApproachSolverBW.cs" />
+    <Compile Include="DynamicMethodFactory.cs" />
+    <Compile Include="KACWrapper.cs" />
+    <Compile Include="MASActionGroup.cs" />
+    <Compile Include="MASAutoPilot.cs" />
+    <Compile Include="MASCamera.cs" />
+    <Compile Include="MASCameraMount.cs" />
+    <Compile Include="MASComponent.cs" />
+    <Compile Include="MASComponentAnimation.cs" />
+    <Compile Include="MASComponentAnimationPlayer.cs" />
+    <Compile Include="MASComponentAudioPlayer.cs" />
+    <Compile Include="MASComponentColliderAdvanced.cs" />
+    <Compile Include="MASComponentColliderEvent.cs" />
+    <Compile Include="MASComponentColorShift.cs" />
+    <Compile Include="MASComponentImage.cs" />
+    <Compile Include="MASComponentInternalText.cs" />
+    <Compile Include="MASComponentIntLight.cs" />
+    <Compile Include="MASComponentModelScale.cs" />
+    <Compile Include="MASComponentRotation.cs" />
+    <Compile Include="MASComponentTextLabel.cs" />
+    <Compile Include="MASComponentTextureReplacement.cs" />
+    <Compile Include="MASComponentTextureScale.cs" />
+    <Compile Include="MASComponentTextureShift.cs" />
+    <Compile Include="MASComponentTranslation.cs" />
+    <Compile Include="MASComponentTriggerEvent.cs" />
+    <Compile Include="MASIdEngineGroup.cs" />
+    <Compile Include="MASIKerbalEngineer.cs" />
+    <Compile Include="MASPageCompoundText.cs" />
+    <Compile Include="MASConfig.cs" />
+    <Compile Include="MASFlightComputerFlash.cs" />
+    <Compile Include="MASFlightComputerNavigation.cs" />
+    <Compile Include="MASFlightComputerPersistent.cs" />
+    <Compile Include="MASFlightComputerProxy.cs" />
+    <Compile Include="MASFlightComputerProxy2.cs" />
+    <Compile Include="MASFlightComputerProxy3.cs" />
+    <Compile Include="MASFlightComputerVariable.cs" />
+    <Compile Include="MASIChatterer.cs" />
+    <Compile Include="MASIdEngine.cs" />
+    <Compile Include="MASIdGeneric.cs" />
+    <Compile Include="MASIEngine.cs" />
+    <Compile Include="MASIFAR.cs" />
+    <Compile Include="MASIKAC.cs" />
+    <Compile Include="MASIMechJeb.cs" />
+    <Compile Include="MASINavigation.cs" />
+    <Compile Include="MASIRealChute.cs" />
+    <Compile Include="MASITransfer.cs" />
+    <Compile Include="MASIVTOL.cs" />
+    <Compile Include="MASNavBall.cs" />
+    <Compile Include="MASPageCamera.cs" />
+    <Compile Include="MASPageEllipse.cs" />
+    <Compile Include="MASPageGroundTrack.cs" />
+    <Compile Include="MASPageLineString.cs" />
+    <Compile Include="MASPageMenu.cs" />
+    <Compile Include="MASPageOrbitDisplay.cs" />
+    <Compile Include="MASPagePolygon.cs" />
+    <Compile Include="MASPageRollingDigit.cs" />
+    <Compile Include="MASPageViewport.cs" />
+    <Compile Include="MASPersistent.cs" />
+    <Compile Include="MASRadar.cs" />
+    <Compile Include="MASPageRpmModule.cs" />
+    <Compile Include="MASSettings.cs" />
+    <Compile Include="MASLoader.cs" />
+    <Compile Include="MASFlightComputer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MASMonitor.cs" />
+    <Compile Include="MASPage.cs" />
+    <Compile Include="MASPageHorizon.cs" />
+    <Compile Include="MASPageHorizontalBar.cs" />
+    <Compile Include="MASPageHorizontalStrip.cs" />
+    <Compile Include="MASPageImage.cs" />
+    <Compile Include="MASPageLineGraph.cs" />
+    <Compile Include="MASPageNavBall.cs" />
+    <Compile Include="MASPageText.cs" />
+    <Compile Include="MASPageVerticalBar.cs" />
+    <Compile Include="MASPageVerticalStrip.cs" />
+    <Compile Include="MASStringFormatter.cs" />
+    <Compile Include="MASThrustReverser.cs" />
+    <Compile Include="MASVesselComputer.cs" />
+    <Compile Include="IMASSubComponent.cs" />
+    <Compile Include="MASVesselComputerModules.cs" />
+    <Compile Include="MASVesselComputerResources.cs" />
+    <Compile Include="MdVTextMesh.cs" />
+    <Compile Include="Parser\BinaryOperatorParselet.cs" />
+    <Compile Include="Parser\CallExpression.cs" />
+    <Compile Include="Parser\CallParselet.cs" />
+    <Compile Include="Parser\Expression.cs" />
+    <Compile Include="Parser\GroupParselet.cs" />
+    <Compile Include="Parser\InfixParselet.cs" />
+    <Compile Include="Parser\Lexer.cs" />
+    <Compile Include="Parser\NameExpression.cs" />
+    <Compile Include="Parser\NameParselet.cs" />
+    <Compile Include="Parser\NumberExpression.cs" />
+    <Compile Include="Parser\NumberParselet.cs" />
+    <Compile Include="Parser\OperatorExpression.cs" />
+    <Compile Include="Parser\Parser.cs" />
+    <Compile Include="Parser\PrefixExpression.cs" />
+    <Compile Include="Parser\PrefixOperatorParselet.cs" />
+    <Compile Include="Parser\PrefixParselet.cs" />
+    <Compile Include="Utility.cs" />
+    <Compile Include="Variable.cs" />
+    <Compile Include="VariableRegistrar.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Publicize Include="Assembly-CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Krafs.Publicizer">
+      <Version>2.2.1</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\JsonPoke.1.2.0\build\JsonPoke.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\JsonPoke.1.2.0\build\JsonPoke.props'))" />
+    <Error Condition="!Exists('packages\JsonPoke.1.2.0\build\JsonPoke.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\JsonPoke.1.2.0\build\JsonPoke.targets'))" />
+    <Error Condition="!Exists('packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props'))" />
+    <Error Condition="!Exists('packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets'))" />
+  </Target>
+  <Import Project="packages\JsonPoke.1.2.0\build\JsonPoke.targets" Condition="Exists('packages\JsonPoke.1.2.0\build\JsonPoke.targets')" />
+  <Import Project="packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets" Condition="Exists('packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
