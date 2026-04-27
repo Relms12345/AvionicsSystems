@@ -828,6 +828,9 @@ namespace AvionicsSystems
         internal bool anyRcsFiring = false;
         internal bool anyRcsRotate = false;
         internal bool anyRcsTranslate = false;
+        internal bool anyRcsPitch = false;
+        internal bool anyRcsYaw = false;
+        internal bool anyRcsRoll = false;
         internal float rcsWeightedThrustLimit;
         internal float rcsActiveThrustPercent;
         private void UpdateRcs()
@@ -836,6 +839,9 @@ namespace AvionicsSystems
             anyRcsFiring = false;
             anyRcsRotate = false;
             anyRcsTranslate = false;
+            anyRcsPitch = false;
+            anyRcsYaw = false;
+            anyRcsRoll = false;
             float netThrust = 0.0f;
             rcsWeightedThrustLimit = 0.0f;
             rcsActiveThrustPercent = 0.0f;
@@ -843,42 +849,43 @@ namespace AvionicsSystems
 
             for (int i = moduleRcs.Length - 1; i >= 0; --i)
             {
-                if (moduleRcs[i].rcsEnabled == false)
+                var rcsModule = moduleRcs[i];
+                
+                if (rcsModule.rcsEnabled == false)
                 {
                     anyRcsDisabled = true;
                 }
                 else
                 {
-                    if (moduleRcs[i].enableX || moduleRcs[i].enableY || moduleRcs[i].enableZ)
+                    anyRcsTranslate = anyRcsTranslate || rcsModule.enableX || rcsModule.enableY || rcsModule.enableZ;
+                    anyRcsPitch = anyRcsPitch || rcsModule.enablePitch;
+                    anyRcsYaw = anyRcsYaw || rcsModule.enableYaw;
+                    anyRcsRoll = anyRcsRoll || rcsModule.enableRoll;
+                    
+                    if (rcsModule.rcs_active)
                     {
-                        anyRcsTranslate = true;
-                    }
-                    if (moduleRcs[i].enableRoll || moduleRcs[i].enableYaw || moduleRcs[i].enablePitch)
-                    {
-                        anyRcsRotate = true;
-                    }
-                    if (moduleRcs[i].rcs_active)
-                    {
-                        for (int q = 0; q < moduleRcs[i].thrustForces.Length; ++q)
+                        for (int q = 0; q < rcsModule.thrustForces.Length; ++q)
                         {
-                            if (moduleRcs[i].thrustForces[q] > 0.0f)
+                            if (rcsModule.thrustForces[q] > 0.0f)
                             {
-                                rcsActiveThrustPercent += moduleRcs[i].thrustForces[q] / moduleRcs[i].thrusterPower;
+                                rcsActiveThrustPercent += rcsModule.thrustForces[q] / rcsModule.thrusterPower;
                                 numActiveThrusters += 1.0f;
                                 anyRcsFiring = true;
                             }
                         }
                     }
-                    netThrust += moduleRcs[i].thrusterPower;
-                    rcsWeightedThrustLimit += moduleRcs[i].thrusterPower * moduleRcs[i].thrustPercentage;
+                    netThrust += rcsModule.thrusterPower;
+                    rcsWeightedThrustLimit += rcsModule.thrusterPower * rcsModule.thrustPercentage;
 
-                    List<PartResourceDefinition> propellants = moduleRcs[i].GetConsumedResources();
+                    List<PartResourceDefinition> propellants = rcsModule.GetConsumedResources();
                     for (int res = propellants.Count - 1; res >= 0; --res)
                     {
                         MarkActiveRcsPropellant(propellants[res].id);
                     }
                 }
             }
+
+            anyRcsRotate = anyRcsPitch || anyRcsYaw || anyRcsRoll;
 
             if (numActiveThrusters > 0.0f)
             {
