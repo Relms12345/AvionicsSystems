@@ -51,7 +51,7 @@ namespace AvionicsSystems
         private static readonly Func<object, bool> GetModuleEnabled;
         private static readonly Action<object, bool> SetModuleEnabled;
         private static readonly FieldInfo ModuleUsers;
-        private static readonly FieldInfo Target;
+        private static readonly Func<object, object> Target;
 
         //--- Methods found in EditableDoubleMult
         private static readonly Func<object, double, object> setEditableDoubleMult;
@@ -59,9 +59,9 @@ namespace AvionicsSystems
 
         //--- Methods found in OrbitalManeuverCalculator
         // Actually, this requires 5 parameters, with the 5 an 'out' parameter.
-        private static readonly DynamicMethodDelegate<object> DeltaVAndTimeForInterplanetaryTransferEjection;
+        private static DynamicMethodDelegate<object> DeltaVAndTimeForInterplanetaryTransferEjection;
         // The 4th parameter is an 'out' parameter.
-        private static readonly DynamicMethodDelegate<object> DeltaVAndTimeForHohmannTransfer;
+        private static DynamicMethodDelegate<object> DeltaVAndTimeForHohmannTransfer;
         private static readonly Func<Orbit, double, double, Vector3d> DeltaVToChangeApoapsis;
         private static readonly Func<Orbit, double, double, Vector3d> DeltaVToChangePeriapsis;
         private static readonly Func<Orbit, double, Vector3d> DeltaVToCircularize;
@@ -76,13 +76,12 @@ namespace AvionicsSystems
         //--- Methods found in MechJebModuleAscentAutopilot
         private static readonly Func<object, bool> GetAPForceRoll;
         private static readonly Func<object, object> GetLaunchAltitude;
-        private static readonly Func<object, double> GetLaunchInclination;
+        private static readonly Func<object, object> GetLaunchInclination;
         private static readonly Func<object, object> GetAPTurnRoll;
         private static readonly Func<object, object> GetAPVerticalRoll;
         private static readonly Action<object, bool> SetForceRoll;
-        private static readonly Action<object, double> SetLaunchInclination;
 
-        //--- Methods found in ModuleAscentGuidance
+        //--- Methods found in ModuleAscentSettings
         private static readonly Func<object, object> GetInclinationAG;
 
         //--- Methods found in ModuleLandingAutopilot
@@ -113,7 +112,7 @@ namespace AvionicsSystems
         private static readonly FieldInfo ReentryTime;
 
         //--- Methods found in StageStats
-        private static readonly Func<object, object, bool, object> RequestUpdate;
+        private static readonly Action<object> RequestUpdate;
         private static readonly FieldInfo AtmoStats;
         private static readonly FieldInfo VacStats;
         private static readonly Func<object, int> GetStatsLength;
@@ -353,7 +352,7 @@ namespace AvionicsSystems
             double desiredAltitude = 0.0;
             if (mjAvailable)
             {
-                object desiredAlt = GetLaunchAltitude(ascentAutopilot);
+                object desiredAlt = GetLaunchAltitude(ascentGuidance);
                 if (desiredAlt != null)
                 {
                     desiredAltitude = getEditableDoubleMult(desiredAlt);
@@ -372,7 +371,11 @@ namespace AvionicsSystems
             double desiredInclination = 0.0;
             if (mjAvailable)
             {
-                return GetLaunchInclination(ascentAutopilot);
+                object incObj = GetLaunchInclination(ascentGuidance);
+                if (incObj != null)
+                {
+                    return getEditableDoubleMult(incObj);
+                }
             }
 
             return desiredInclination;
@@ -387,7 +390,7 @@ namespace AvionicsSystems
         {
             if (mjAvailable)
             {
-                return GetAPForceRoll(ascentAutopilot) ? 1.0 : 0.0;
+                return GetAPForceRoll(ascentGuidance) ? 1.0 : 0.0;
             }
             return 0.0;
         }
@@ -400,7 +403,7 @@ namespace AvionicsSystems
         {
             if (mjAvailable)
             {
-                object turnRoll = GetAPTurnRoll(ascentAutopilot);
+                object turnRoll = GetAPTurnRoll(ascentGuidance);
                 if (turnRoll != null)
                 {
                     return getEditableDoubleMult(turnRoll);
@@ -417,7 +420,7 @@ namespace AvionicsSystems
         {
             if (mjAvailable)
             {
-                object vertRoll = GetAPVerticalRoll(ascentAutopilot);
+                object vertRoll = GetAPVerticalRoll(ascentGuidance);
                 if (vertRoll != null)
                 {
                     return getEditableDoubleMult(vertRoll);
@@ -434,7 +437,7 @@ namespace AvionicsSystems
         {
             if (mjAvailable)
             {
-                object desiredAlt = GetLaunchAltitude(ascentAutopilot);
+                object desiredAlt = GetLaunchAltitude(ascentGuidance);
                 if (desiredAlt != null)
                 {
                     setEditableDoubleMult(desiredAlt, altitude);
@@ -450,12 +453,10 @@ namespace AvionicsSystems
         {
             if (mjAvailable)
             {
-                SetLaunchInclination(ascentAutopilot, inclination);
-                // Just writing it to the autopilot doesn't update the ascent guidance gui...
-                object desiredInc = GetInclinationAG(ascentGuidance);
-                if (desiredInc != null)
+                object incObj = GetLaunchInclination(ascentGuidance);
+                if (incObj != null)
                 {
-                    setEditableDoubleMult(desiredInc, inclination);
+                    setEditableDoubleMult(incObj, inclination);
                 }
             }
         }
@@ -469,7 +470,7 @@ namespace AvionicsSystems
         {
             if (mjAvailable)
             {
-                object turnRollED = GetAPTurnRoll(ascentAutopilot);
+                object turnRollED = GetAPTurnRoll(ascentGuidance);
                 if (turnRollED != null)
                 {
                     turnRoll = Utility.NormalizeLongitude(turnRoll);
@@ -489,7 +490,7 @@ namespace AvionicsSystems
         {
             if (mjAvailable)
             {
-                object vertRollED = GetAPVerticalRoll(ascentAutopilot);
+                object vertRollED = GetAPVerticalRoll(ascentGuidance);
                 if (vertRollED != null)
                 {
                     verticalRoll = Utility.NormalizeLongitude(verticalRoll);
@@ -536,7 +537,7 @@ namespace AvionicsSystems
         {
             if (mjAvailable)
             {
-                SetForceRoll(ascentAutopilot, !GetAPForceRoll(ascentAutopilot));
+                SetForceRoll(ascentGuidance, !GetAPForceRoll(ascentGuidance));
                 return 1.0;
             }
 
@@ -718,7 +719,7 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    object target = Target.GetValue(masterMechJeb);
+                    object target = Target(masterMechJeb);
                     if (PositionTargetExists(target))
                     {
                         LandAtPositionTarget(landingAutopilot, landingGuidance);
@@ -1403,7 +1404,7 @@ namespace AvionicsSystems
                     landingTime = 0.0;
                 }
 
-                RequestUpdate(stageStats, this, false);
+                RequestUpdate(stageStats);
                 int atmStatsLength = 0, vacStatsLength = 0;
 
                 object atmStatsO = AtmoStats.GetValue(stageStats);
@@ -1480,16 +1481,16 @@ namespace AvionicsSystems
                             throw new Exception("MASIMechJeb: Failed to get SmartASS MJ module");
                         }
 
-                        ascentAutopilot = GetComputerModule(masterMechJeb, "MechJebModuleAscentAutopilot");
+                        ascentAutopilot = GetComputerModule(masterMechJeb, "MechJebModuleAscentClassicAutopilot");
                         if (ascentAutopilot == null)
                         {
                             throw new Exception("MASIMechJeb: Failed to get Ascent Autopilot MJ module");
                         }
 
-                        ascentGuidance = GetComputerModule(masterMechJeb, "MechJebModuleAscentGuidance");
+                        ascentGuidance = GetComputerModule(masterMechJeb, "MechJebModuleAscentSettings");
                         if (ascentGuidance == null)
                         {
-                            throw new Exception("MASIMechJeb: Failed to get Ascent Guidance MJ module");
+                            throw new Exception("MASIMechJeb: Failed to get Ascent Settings MJ module");
                         }
 
                         dockingAutopilot = GetComputerModule(masterMechJeb, "MechJebModuleDockingAutopilot");
@@ -1669,15 +1670,10 @@ namespace AvionicsSystems
                 {
                     throw new ArgumentNullException("mjModuleSmartass_t");
                 }
-                Type mjModuleAscentAP_t = Utility.GetExportedType("MechJeb2", "MuMech.MechJebModuleAscentAutopilot");
-                if (mjModuleAscentAP_t == null)
+                Type mjModuleAscentSettings_t = Utility.GetExportedType("MechJeb2", "MuMech.MechJebModuleAscentSettings");
+                if (mjModuleAscentSettings_t == null)
                 {
-                    throw new ArgumentNullException("mjModuleAscentAP_t");
-                }
-                Type mjModuleAscentGuid_t = Utility.GetExportedType("MechJeb2", "MuMech.MechJebModuleAscentGuidance");
-                if (mjModuleAscentGuid_t == null)
-                {
-                    throw new ArgumentNullException("mjModuleAscentGuid_t");
+                    throw new ArgumentNullException("mjModuleAscentSettings_t");
                 }
                 Type mjLandingAutopilot_t = Utility.GetExportedType("MechJeb2", "MuMech.MechJebModuleLandingAutopilot");
                 if (mjLandingAutopilot_t == null)
@@ -1709,21 +1705,11 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjModuleStageStats_t");
                 }
-                //---FuelFlowSimulation
-                Type mjFuelFlowSimulation_t = Utility.GetExportedType("MechJeb2", "MuMech.FuelFlowSimulation");
-                if (mjFuelFlowSimulation_t == null)
-                {
-                    throw new NotImplementedException("mjFuelFlowSimulation_t");
-                }
-                Type mjFuelFlowSimulationStats_t = mjFuelFlowSimulation_t.GetNestedType("Stats");
+                //---FuelFlowSimulation.FuelStats (now in MechJebLib assembly)
+                Type mjFuelFlowSimulationStats_t = Utility.GetExportedType("MechJebLib", "MechJebLib.FuelFlowSimulation.FuelStats");
                 if (mjFuelFlowSimulationStats_t == null)
                 {
-		    // Stats renamed to FuelStats in 2.12.3
-		    mjFuelFlowSimulationStats_t = mjFuelFlowSimulation_t.GetNestedType("FuelStats");
-		    if (mjFuelFlowSimulationStats_t == null)
-		    {
-			throw new NotImplementedException("mjFuelFlowSimulationStats_t");
-		    }
+                    throw new NotImplementedException("mjFuelFlowSimulationStats_t");
                 }
 
                 //--- MechJebCore
@@ -1737,14 +1723,15 @@ namespace AvionicsSystems
                 {
                     throw new ArgumentNullException("GetComputerModule");
                 }
-                Target = mjCore_t.GetField("target", BindingFlags.Instance | BindingFlags.Public);
-                if (Target == null)
+                PropertyInfo mjTargetProperty = mjCore_t.GetProperty("Target", BindingFlags.Instance | BindingFlags.Public);
+                if (mjTargetProperty == null)
                 {
                     throw new ArgumentNullException("Target");
                 }
+                Target = DynamicMethodFactory.CreateFunc<object, object>(mjTargetProperty.GetGetMethod());
 
                 //--- ComputerModule
-                PropertyInfo mjModuleEnabledProperty = mjComputerModule_t.GetProperty("enabled", BindingFlags.Instance | BindingFlags.Public);
+                PropertyInfo mjModuleEnabledProperty = mjComputerModule_t.GetProperty("Enabled", BindingFlags.Instance | BindingFlags.Public);
                 MethodInfo mjGetModuleEnabled = null;
                 MethodInfo mjSetModuleEnabled = null;
                 if (mjModuleEnabledProperty != null)
@@ -1758,14 +1745,14 @@ namespace AvionicsSystems
                 }
                 GetModuleEnabled = DynamicMethodFactory.CreateFunc<object, bool>(mjGetModuleEnabled);
                 SetModuleEnabled = DynamicMethodFactory.CreateAction<object, bool>(mjSetModuleEnabled);
-                ModuleUsers = mjComputerModule_t.GetField("users", BindingFlags.Instance | BindingFlags.Public);
+                ModuleUsers = mjComputerModule_t.GetField("Users", BindingFlags.Instance | BindingFlags.Public);
                 if (ModuleUsers == null)
                 {
                     throw new ArgumentNullException("ModuleUsers");
                 }
 
                 //--- EditableDoubleMult
-                PropertyInfo edmVal = mjEditableDoubleMult_t.GetProperty("val");
+                PropertyInfo edmVal = mjEditableDoubleMult_t.GetProperty("Val");
                 if (edmVal == null)
                 {
                     throw new ArgumentNullException("edmVal");
@@ -1783,47 +1770,39 @@ namespace AvionicsSystems
                     setEditableDoubleMult = DynamicMethodFactory.CreateDynFunc<object, double, object>(mjSetEDM);
                 }
 
-                //--- ModuleAscentAutoPilot
-                FieldInfo turnRoll_t = mjModuleAscentAP_t.GetField("turnRoll");
+                //--- ModuleAscentSettings
+                FieldInfo turnRoll_t = mjModuleAscentSettings_t.GetField("TurnRoll");
                 if (turnRoll_t == null)
                 {
                     throw new ArgumentNullException("turnRoll_t");
                 }
                 GetAPTurnRoll = DynamicMethodFactory.CreateGetField<object, object>(turnRoll_t);
-                FieldInfo verticalRoll_t = mjModuleAscentAP_t.GetField("verticalRoll");
+                FieldInfo verticalRoll_t = mjModuleAscentSettings_t.GetField("VerticalRoll");
                 if (verticalRoll_t == null)
                 {
                     throw new ArgumentNullException("verticalRoll_t");
                 }
                 GetAPVerticalRoll = DynamicMethodFactory.CreateGetField<object, object>(verticalRoll_t);
-                FieldInfo desiredOrbitAltitude_t = mjModuleAscentAP_t.GetField("desiredOrbitAltitude");
+                FieldInfo desiredOrbitAltitude_t = mjModuleAscentSettings_t.GetField("DesiredOrbitAltitude");
                 if (desiredOrbitAltitude_t == null)
                 {
                     throw new ArgumentNullException("desiredOrbitAltitude_t");
                 }
                 GetLaunchAltitude = DynamicMethodFactory.CreateGetField<object, object>(desiredOrbitAltitude_t);
-                FieldInfo forceRoll_t = mjModuleAscentAP_t.GetField("forceRoll");
+                FieldInfo forceRoll_t = mjModuleAscentSettings_t.GetField("ForceRoll");
                 if (forceRoll_t == null)
                 {
                     throw new ArgumentNullException("forceRoll_t");
                 }
                 GetAPForceRoll = DynamicMethodFactory.CreateGetField<object, bool>(forceRoll_t);
                 SetForceRoll = DynamicMethodFactory.CreateSetField<object, bool>(forceRoll_t);
-                FieldInfo desiredOrbitInclination_t = mjModuleAscentAP_t.GetField("desiredInclination");
+                FieldInfo desiredOrbitInclination_t = mjModuleAscentSettings_t.GetField("DesiredInclination");
                 if (desiredOrbitInclination_t == null)
                 {
                     throw new ArgumentNullException("desiredOrbitInclination_t");
                 }
-                GetLaunchInclination = DynamicMethodFactory.CreateGetField<object, double>(desiredOrbitInclination_t);
-                SetLaunchInclination = DynamicMethodFactory.CreateSetField<object, double>(desiredOrbitInclination_t);
-
-                //--- ModuleAscentGuidance
-                FieldInfo desiredOrbitInclinationAG_t = mjModuleAscentGuid_t.GetField("desiredInclination");
-                if (desiredOrbitInclinationAG_t == null)
-                {
-                    throw new ArgumentNullException("desiredOrbitInclinationAG_t");
-                }
-                GetInclinationAG = DynamicMethodFactory.CreateGetField<object, object>(desiredOrbitInclinationAG_t);
+                GetLaunchInclination = DynamicMethodFactory.CreateGetField<object, object>(desiredOrbitInclination_t);
+                GetInclinationAG = DynamicMethodFactory.CreateGetField<object, object>(desiredOrbitInclination_t);
 
                 //--- ModuleLandingAutopilot
                 MethodInfo mjLandAtPositionTarget = mjLandingAutopilot_t.GetMethod("LandAtPositionTarget", BindingFlags.Instance | BindingFlags.Public);
@@ -1933,11 +1912,10 @@ namespace AvionicsSystems
                 DeltaVToCircularize = DynamicMethodFactory.CreateDynFunc<Orbit, double, Vector3d>(deltaVToChangeCircularize);
 
                 MethodInfo deltaVAndTimeForHohmannTransfer = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVAndTimeForHohmannTransfer", BindingFlags.Static | BindingFlags.Public);
-                if (deltaVAndTimeForHohmannTransfer == null)
+                if (deltaVAndTimeForHohmannTransfer != null)
                 {
-                    throw new NotImplementedException("deltaVAndTimeForHohmannTransfer");
+                    DeltaVAndTimeForHohmannTransfer = DynamicMethodFactory.CreateFunc<object>(deltaVAndTimeForHohmannTransfer);
                 }
-                DeltaVAndTimeForHohmannTransfer = DynamicMethodFactory.CreateFunc<object>(deltaVAndTimeForHohmannTransfer);
 
                 MethodInfo deltaVToMatchVelocities = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVToMatchVelocities", BindingFlags.Static | BindingFlags.Public);
                 if (deltaVToMatchVelocities == null)
@@ -1947,11 +1925,10 @@ namespace AvionicsSystems
                 DeltaVToMatchVelocities = DynamicMethodFactory.CreateFunc<Orbit, double, Orbit, Vector3d>(deltaVToMatchVelocities);
 
                 MethodInfo deltaVAndTimeForInterplanetaryTransferEjection = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVAndTimeForInterplanetaryTransferEjection", BindingFlags.Static | BindingFlags.Public);
-                if (deltaVAndTimeForInterplanetaryTransferEjection == null)
+                if (deltaVAndTimeForInterplanetaryTransferEjection != null)
                 {
-                    throw new NotImplementedException("deltaVAndTimeForInterplanetaryTransferEjection");
+                    DeltaVAndTimeForInterplanetaryTransferEjection = DynamicMethodFactory.CreateFunc<object>(deltaVAndTimeForInterplanetaryTransferEjection);
                 }
-                DeltaVAndTimeForInterplanetaryTransferEjection = DynamicMethodFactory.CreateFunc<object>(deltaVAndTimeForInterplanetaryTransferEjection);
 
                 //--- ReentrySimulation.Result
                 Type mjReentrySim_t = Utility.GetExportedType("MechJeb2", "MuMech.ReentrySimulation");
@@ -1964,17 +1941,17 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjReentryResult_t");
                 }
-                ReentryOutcome = mjReentryResult_t.GetField("outcome", BindingFlags.Instance | BindingFlags.Public);
+                ReentryOutcome = mjReentryResult_t.GetField("Outcome", BindingFlags.Instance | BindingFlags.Public);
                 if (ReentryOutcome == null)
                 {
                     throw new NotImplementedException("ReentryOutcome");
                 }
-                ReentryEndPosition = mjReentryResult_t.GetField("endPosition", BindingFlags.Instance | BindingFlags.Public);
+                ReentryEndPosition = mjReentryResult_t.GetField("EndPosition", BindingFlags.Instance | BindingFlags.Public);
                 if (ReentryEndPosition == null)
                 {
                     throw new NotImplementedException("ReentryEndPosition");
                 }
-                ReentryTime = mjReentryResult_t.GetField("endUT", BindingFlags.Instance | BindingFlags.Public);
+                ReentryTime = mjReentryResult_t.GetField("EndUT", BindingFlags.Instance | BindingFlags.Public);
                 if (ReentryTime == null)
                 {
                     throw new NotImplementedException("ReentryTime");
@@ -1986,23 +1963,18 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjRequestUpdate");
                 }
-                RequestUpdate = DynamicMethodFactory.CreateFunc<object, object, bool, object>(mjRequestUpdate);
-                VacStats = mjModuleStageStats_t.GetField("vacStats", BindingFlags.Instance | BindingFlags.Public);
+                RequestUpdate = DynamicMethodFactory.CreateAction<object>(mjRequestUpdate);
+                VacStats = mjModuleStageStats_t.GetField("VacStats", BindingFlags.Instance | BindingFlags.Public);
                 if (VacStats == null)
                 {
                     throw new NotImplementedException("VacStats");
                 }
 
-                //--- FuelFlowSimulation.Stats
-                StatsStageDv = mjFuelFlowSimulationStats_t.GetField("deltaV", BindingFlags.Instance | BindingFlags.Public);
+                //--- FuelFlowSimulation.FuelStats (already obtained above)
+                StatsStageDv = mjFuelFlowSimulationStats_t.GetField("DeltaV", BindingFlags.Instance | BindingFlags.Public);
                 if (StatsStageDv == null)
                 {
-		    // Stats.deltaV renamed to FuelStats.DeltaV in 2.12.3
-		    StatsStageDv = mjFuelFlowSimulationStats_t.GetField("DeltaV", BindingFlags.Instance | BindingFlags.Public);
-		    if (StatsStageDv == null)
-		    {
-			throw new NotImplementedException("mjStageDv");
-		    }
+                    throw new NotImplementedException("mjStageDv");
                 }
                 //Utility.LogMessage(StatsStageDv, "mjStageDv type is {0}", StatsStageDv.FieldType.Name);
                 GetStageDv = DynamicMethodFactory.CreateGetField<object, object>(StatsStageDv);
@@ -2011,7 +1983,7 @@ namespace AvionicsSystems
                 // its internal FuelFlowSimulation.  This sim uses an array of
                 // structs, which entails a couple of extra hoops to jump through
                 // when reading via reflection.
-                AtmoStats = mjModuleStageStats_t.GetField("atmoStats", BindingFlags.Instance | BindingFlags.Public);
+                AtmoStats = mjModuleStageStats_t.GetField("AtmoStats", BindingFlags.Instance | BindingFlags.Public);
                 if (AtmoStats == null)
                 {
                     throw new NotImplementedException("AtmoStats");
@@ -2073,12 +2045,12 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjAbsoluteVector_t");
                 }
-                AbsoluteVectorLat = mjAbsoluteVector_t.GetField("latitude", BindingFlags.Instance | BindingFlags.Public);
+                AbsoluteVectorLat = mjAbsoluteVector_t.GetField("Latitude", BindingFlags.Instance | BindingFlags.Public);
                 if (AbsoluteVectorLat == null)
                 {
                     throw new NotImplementedException("AbsoluteVectorLat");
                 }
-                AbsoluteVectorLon = mjAbsoluteVector_t.GetField("longitude", BindingFlags.Instance | BindingFlags.Public);
+                AbsoluteVectorLon = mjAbsoluteVector_t.GetField("Longitude", BindingFlags.Instance | BindingFlags.Public);
                 if (AbsoluteVectorLon == null)
                 {
                     throw new NotImplementedException("AbsoluteVectorLon");
